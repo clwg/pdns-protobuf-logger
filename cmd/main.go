@@ -19,6 +19,7 @@ func main() {
 	go dnsmessage.HandleRawMessages()
 	go dnsmessage.HandleDnsResponse()
 	go dnsmessage.HandleDnsQuery()
+	go dnsmessage.HandleDnsIncomingResponse()
 
 	for {
 		conn, err := listener.Accept()

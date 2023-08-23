@@ -7,50 +7,57 @@ import (
 	pb "github.com/clwg/pdns-protobuf-logger/protos"
 )
 
-type IncomingDNSRecord struct {
-	MsgType string
-	Proto   string
-	TimeSec int64
-	QName   string
-	RName   string
-	RType   uint32
-	RData   string
+type IncomingResponseDNSRecord struct {
+	MsgType        string
+	SocketProtocol string
+	TimeSec        uint32
+	QName          string
+	QType          uint32
+	QClass         uint32
+	ServerIp       string
+	ServerPort     uint32
+	Rdata          string
+	RType          uint32
 }
 
 var IncomingResponseChannel = make(chan *pb.PBDNSMessage, 10)
 
 func HandleDnsIncomingResponse() {
-	for message := range ResponseChannel {
-		ts := int64(message.GetTimeSec())
-		qname := message.Question.GetQName()
 
-		for _, rrs := range message.Response.GetRrs() {
-			var rdata string
-			rname := rrs.GetName()
+	for message := range IncomingResponseChannel {
+		//log.Printf("%v", message.String())
+		if len(message.Response.GetRrs()) > 0 {
 
-			// Check the type and construct rdata accordingly
-			if rrs.GetType() == 1 || rrs.GetType() == 28 {
-				ip := net.IP(rrs.GetRdata())
-				rdata = ip.String()
-			} else {
-				rdata = string(rrs.GetRdata())
+			for _, rrs := range message.Response.GetRrs() {
+
+				var rdata string
+				if rrs.GetType() == 1 || rrs.GetType() == 28 {
+					ip := net.IP(rrs.GetRdata())
+					rdata = ip.String()
+				} else {
+					rdata = string(rrs.GetRdata())
+				}
+
+				ServerIpAdderess := net.IP(message.GetTo())
+
+				// Create a DnsResponse object with the extracted details
+				incomingResponseDNS := IncomingResponseDNSRecord{
+					SocketProtocol: message.GetSocketProtocol().String(),
+					TimeSec:        message.GetTimeSec(),
+					QName:          message.Question.GetQName(),
+					QType:          message.Question.GetQType(),
+					QClass:         message.Question.GetQClass(),
+					ServerIp:       ServerIpAdderess.String(),
+					ServerPort:     message.GetToPort(),
+					Rdata:          rdata,
+					RType:          rrs.GetType(),
+				}
+
+				log.Printf("Authoritative Answer: \t %+v", incomingResponseDNS)
+
 			}
-
-			// Create a DnsResponse object with the extracted details
-			passiveDNS := PassiveDNSRecord{
-				MsgType: message.GetType().String(),
-				Proto:   message.GetSocketProtocol().String(),
-				TimeSec: ts,
-				QName:   qname,
-				RName:   rname,
-				RType:   rrs.GetType(),
-				RData:   rdata,
-			}
-
-			// You can now use the dnsResponse object as needed. Here's a log statement as an example:
-			//log.Printf("RR: \t %v, %v, %v, %v, %v, %v, %v", passiveDNS.MsgType, passiveDNS.Proto, passiveDNS.TimeSec, passiveDNS.QName, passiveDNS.RName, passiveDNS.RType, passiveDNS.RData)
-			log.Printf("DNS INCOMING: \t %+v", passiveDNS)
-
 		}
+
 	}
+
 }
