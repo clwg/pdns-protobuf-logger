@@ -7,30 +7,34 @@ import (
 	pb "github.com/clwg/pdns-protobuf-logger/protos"
 )
 
+// PassiveDNSRecord represents a passive DNS record with the extracted details
 type PassiveDNSRecord struct {
-	MsgType string
-	Proto   string
-	TimeSec int64
-	QName   string
-	RName   string
-	RType   uint32
-	RData   string
+	MsgType string // message type
+	Proto   string // socket protocol
+	TimeSec int64  // time in seconds
+	QName   string // query name
+	RName   string // response name
+	RType   uint32 // response type
+	RData   string // response data
 }
 
+// DNSErrorResponse represents a DNS error response with the extracted details
 type DNSErrorResponse struct {
-	MsgType         string
-	Proto           string
-	TimeSec         int64
-	SourceIP        string
-	SourcePort      uint32
-	DestinationIP   string
-	DestinationPort uint32
-	QName           string
-	RCode           uint32
+	MsgType         string // message type
+	Proto           string // socket protocol
+	TimeSec         int64  // time in seconds
+	SourceIP        string // source IP address
+	SourcePort      uint32 // source port
+	DestinationIP   string // destination IP address
+	DestinationPort uint32 // destination port
+	QName           string // query name
+	RCode           uint32 // response code
 }
 
+// ResponseChannel is a channel for receiving DNS messages
 var ResponseChannel = make(chan *pb.PBDNSMessage, 10)
 
+// HandleDnsResponse handles DNS responses received on the ResponseChannel
 func HandleDnsResponse() {
 	for message := range ResponseChannel {
 		ts := int64(message.GetTimeSec())
@@ -51,7 +55,7 @@ func HandleDnsResponse() {
 					rdata = string(rrs.GetRdata())
 				}
 
-				// Create a DnsResponse object with the extracted details
+				// Create a PassiveDNSRecord object with the extracted details
 				passiveDNS := PassiveDNSRecord{
 					MsgType: message.GetType().String(),
 					Proto:   message.GetSocketProtocol().String(),
@@ -67,6 +71,7 @@ func HandleDnsResponse() {
 			}
 
 		} else {
+			// Create a DNSErrorResponse object with the extracted details
 			dnsError := DNSErrorResponse{
 				MsgType:         message.GetType().String(),
 				Proto:           message.GetSocketProtocol().String(),
