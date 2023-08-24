@@ -61,3 +61,22 @@ type PassiveDNSRecord struct {
 	Rdata     string
 	Timestamp time.Time
 }
+
+type AuthoritativeDNSRecord struct {
+	Id        string
+	Qname     string
+	ServerIp  string
+	Rdata     string
+	Timestamp time.Time
+}
+
+type QueryResponseRecord struct {
+	SocketProtocol string
+	Qname          string
+	Rcode          uint32
+	FromIp         string
+	FromPort       uint32
+	ToIp           string
+	ToPort         uint32
+	Timestamp      time.Time
+}

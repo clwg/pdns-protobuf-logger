@@ -13,11 +13,17 @@ import (
 )
 
 func main() {
-	// Command-line switches for enabling passive and detailed logging
+	// Command-line switches
 	var passiveLogging bool
 	var detailedLogging bool
+	var authoritativeLogging bool
+	var queryresponseLogging bool
+
 	flag.BoolVar(&passiveLogging, "passive", true, "Enable passive logging")
 	flag.BoolVar(&detailedLogging, "detailed", false, "Enable detailed logging")
+	flag.BoolVar(&authoritativeLogging, "authoritative", false, "Enable authoritative logging")
+	flag.BoolVar(&queryresponseLogging, "queryresponse", false, "Enable client query response logging")
+
 	flag.Parse()
 
 	// Listen on TCP port 6666 on all interfaces.
@@ -30,32 +36,66 @@ func main() {
 	if detailedLogging {
 		log.Printf("Detailed logging enabled")
 
-		// Create and start the logger for detailed DNS messages
 		DetailedConfig := writer.LoggerConfig{
 			FilenamePrefix: "logs/detailed/dns",
 			MaxLines:       100000,
 			RotationTime:   6000 * time.Second,
 		}
+
 		DetailedLogger, err := writer.NewLogger(DetailedConfig)
 		if err != nil {
 			panic(err)
 		}
-		go dnsmessage.HandleRawMessages(DetailedLogger) // Goroutine for detailed DNS messages
+
+		go dnsmessage.Detailed(DetailedLogger) // Goroutine for detailed DNS messages
 	}
 
 	if passiveLogging {
-		log.Printf("Passive logging enabled")
-		// Create and start the logger for passive DNS messages
+
 		PassiveConfig := writer.LoggerConfig{
 			FilenamePrefix: "logs/passive/dns",
 			MaxLines:       100000,
 			RotationTime:   6000 * time.Second,
 		}
+
 		PassiveLogger, err := writer.NewLogger(PassiveConfig)
 		if err != nil {
 			panic(err)
 		}
+
 		go dnsmessage.PassiveDNS(PassiveLogger)
+	}
+
+	if authoritativeLogging {
+
+		AuthoritativeConfig := writer.LoggerConfig{
+			FilenamePrefix: "logs/authoritative/dns",
+			MaxLines:       100000,
+			RotationTime:   6000 * time.Second,
+		}
+
+		AuthoritativeLogger, err := writer.NewLogger(AuthoritativeConfig)
+		if err != nil {
+			panic(err)
+		}
+
+		go dnsmessage.Authoritative(AuthoritativeLogger)
+	}
+
+	if queryresponseLogging {
+
+		QueryResponseConfig := writer.LoggerConfig{
+			FilenamePrefix: "logs/queryresponse/dns",
+			MaxLines:       100000,
+			RotationTime:   6000 * time.Second,
+		}
+
+		QueryResponseLogger, err := writer.NewLogger(QueryResponseConfig)
+		if err != nil {
+			panic(err)
+		}
+
+		go dnsmessage.QueryResponse(QueryResponseLogger)
 	}
 
 	// Handle incoming connections

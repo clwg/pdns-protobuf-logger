@@ -1,7 +1,6 @@
 package dnsmessage
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"strings"
@@ -11,14 +10,16 @@ import (
 	"github.com/clwg/pdns-protobuf-logger/writer"
 )
 
-func PassiveDNS(logger *writer.Logger) {
-	log.Printf("Passive logging enabled")
+func Authoritative(logger *writer.Logger) {
+
+	log.Printf("Authoritative logging enabled")
+
 	for message := range RawMessageChannel {
 		// Client queryresponse only
-		if message.GetType() == pb.PBDNSMessage_DNSResponseType {
+		if message.GetType() == pb.PBDNSMessage_DNSIncomingResponseType {
 			for _, rrs := range message.Response.GetRrs() {
 
-				passiveRecord := PassiveDNSRecord{}
+				authorityRecord := AuthoritativeDNSRecord{}
 
 				var rdata string
 				if rrs.GetType() == 1 || rrs.GetType() == 28 {
@@ -28,9 +29,9 @@ func PassiveDNS(logger *writer.Logger) {
 				}
 
 				qname := message.Question.GetQName()
-				rname := rrs.GetName()
-				rtype := rrs.GetType()
-				keyParts := []string{qname, rname, fmt.Sprint(rtype), rdata}
+				serverIp := net.IP(message.GetTo()).String()
+
+				keyParts := []string{qname, serverIp, rdata}
 				separator := ":"
 				key := strings.Join(keyParts, separator)
 
@@ -39,16 +40,15 @@ func PassiveDNS(logger *writer.Logger) {
 					log.Printf("Error generating UUID: %v", err)
 				}
 
-				passiveRecord.Timestamp = utils.ConvertToTimestamp(message.GetTimeSec(), message.GetTimeUsec())
-				passiveRecord.Id = id
-				passiveRecord.Qname = qname
-				passiveRecord.Rname = rname
-				passiveRecord.Rtype = rtype
-				passiveRecord.Rdata = rdata
+				authorityRecord.Timestamp = utils.ConvertToTimestamp(message.GetTimeSec(), message.GetTimeUsec())
+				authorityRecord.Id = id
+				authorityRecord.Qname = qname
+				authorityRecord.ServerIp = serverIp
+				authorityRecord.Rdata = rdata
 
-				//log.Printf("%+v", passiveRecord)
+				//log.Printf("%+v", authorityRecord)
 
-				logger.Log(passiveRecord)
+				logger.Log(authorityRecord)
 
 			}
 		}

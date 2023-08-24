@@ -9,58 +9,69 @@ import (
 
 var RawMessageChannel = make(chan *pb.PBDNSMessage, 10)
 
-func HandleRawMessages(logger *writer.Logger) {
+func Detailed(logger *writer.Logger) {
+
 	for message := range RawMessageChannel {
-		dnsMsg := DNSMessage{}
-		dnsMsg.Type = message.GetType().String()
-		dnsMsg.MessageId = message.GetMessageId()
-		dnsMsg.ServerIdentity = string(message.GetServerIdentity())
-		dnsMsg.SocketFamily = message.GetSocketFamily().String()
-		dnsMsg.SocketProtocol = message.GetSocketProtocol().String()
-		dnsMsg.From = net.IP(message.GetFrom()).String()
-		dnsMsg.To = net.IP(message.GetTo()).String()
-		dnsMsg.InBytes = message.GetInBytes()
-		dnsMsg.TimeSec = message.GetTimeSec()
-		dnsMsg.TimeUsec = message.GetTimeUsec()
-		dnsMsg.Id = message.GetId()
-		dnsMsg.OriginalRequestorSubnet = message.GetOriginalRequestorSubnet()
-		dnsMsg.RequestorId = message.GetRequestorId()
-		dnsMsg.InitialRequestId = message.GetInitialRequestId()
-		dnsMsg.DeviceId = message.GetDeviceId()
-		dnsMsg.NewlyObservedDomain = message.GetNewlyObservedDomain()
-		dnsMsg.DeviceName = message.GetDeviceName()
-		dnsMsg.FromPort = message.GetFromPort()
-		dnsMsg.ToPort = message.GetToPort()
+		dnsMsg := DNSMessage{
+			Type:                    message.GetType().String(),
+			MessageId:               message.GetMessageId(),
+			ServerIdentity:          string(message.GetServerIdentity()),
+			SocketFamily:            message.GetSocketFamily().String(),
+			SocketProtocol:          message.GetSocketProtocol().String(),
+			From:                    net.IP(message.GetFrom()).String(),
+			To:                      net.IP(message.GetTo()).String(),
+			InBytes:                 message.GetInBytes(),
+			TimeSec:                 message.GetTimeSec(),
+			TimeUsec:                message.GetTimeUsec(),
+			Id:                      message.GetId(),
+			OriginalRequestorSubnet: message.GetOriginalRequestorSubnet(),
+			RequestorId:             message.GetRequestorId(),
+			InitialRequestId:        message.GetInitialRequestId(),
+			DeviceId:                message.GetDeviceId(),
+			NewlyObservedDomain:     message.GetNewlyObservedDomain(),
+			DeviceName:              message.GetDeviceName(),
+			FromPort:                message.GetFromPort(),
+			ToPort:                  message.GetToPort(),
+		}
 
-		dnsMsg.Question.QName = message.GetQuestion().GetQName()
-		dnsMsg.Question.QType = message.GetQuestion().GetQType()
-		dnsMsg.Question.QClass = message.GetQuestion().GetQClass()
+		question := message.GetQuestion()
+		dnsMsg.Question = DNSQuestion{
+			QName:  question.GetQName(),
+			QType:  question.GetQType(),
+			QClass: question.GetQClass(),
+		}
 
-		dnsMsg.Response.Rcode = message.GetResponse().GetRcode()
-		dnsMsg.Response.AppliedPolicy = message.GetResponse().GetAppliedPolicy()
-		dnsMsg.Response.Tags = message.GetResponse().GetTags()
-		dnsMsg.Response.QueryTimeSec = message.GetResponse().GetQueryTimeSec()
-		dnsMsg.Response.QueryTimeUsec = message.GetResponse().GetQueryTimeUsec()
-		dnsMsg.Response.AppliedPolicyTrigger = message.GetResponse().GetAppliedPolicyTrigger()
-		dnsMsg.Response.AppliedPolicyHit = message.GetResponse().GetAppliedPolicyHit()
+		response := message.GetResponse()
+		dnsMsg.Response = DNSResponse{
+			Rcode:                response.GetRcode(),
+			AppliedPolicy:        response.GetAppliedPolicy(),
+			Tags:                 response.GetTags(),
+			QueryTimeSec:         response.GetQueryTimeSec(),
+			QueryTimeUsec:        response.GetQueryTimeUsec(),
+			AppliedPolicyTrigger: response.GetAppliedPolicyTrigger(),
+			AppliedPolicyHit:     response.GetAppliedPolicyHit(),
+			Rrs:                  make([]DNSResponse_DNSRR, 0, len(response.GetRrs())),
+		}
 
-		for _, rrs := range message.GetResponse().GetRrs() {
-			dnsRR := DNSResponse_DNSRR{}
-			dnsRR.Name = rrs.GetName()
-			dnsRR.Type = rrs.GetType()
-			dnsRR.Class = rrs.GetClass()
-			dnsRR.Ttl = rrs.GetTtl()
-			dnsRR.Udr = rrs.GetUdr()
-			if rrs.GetType() == 1 || rrs.GetType() == 28 {
+		for _, rrs := range response.GetRrs() {
+			dnsRR := DNSResponse_DNSRR{
+				Name:  rrs.GetName(),
+				Type:  rrs.GetType(),
+				Class: rrs.GetClass(),
+				Ttl:   rrs.GetTtl(),
+				Udr:   rrs.GetUdr(),
+			}
+
+			switch rrs.GetType() {
+			case 1, 28:
 				dnsRR.Rdata = net.IP(rrs.GetRdata()).String()
-			} else {
+			default:
 				dnsRR.Rdata = string(rrs.GetRdata())
 			}
-			dnsMsg.Response.Rrs = append(dnsMsg.Response.Rrs, dnsRR)
 
+			dnsMsg.Response.Rrs = append(dnsMsg.Response.Rrs, dnsRR)
 		}
 
 		logger.Log(dnsMsg)
-
 	}
 }
