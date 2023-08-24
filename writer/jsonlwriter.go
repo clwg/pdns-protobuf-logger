@@ -1,21 +1,21 @@
 package writer
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"sync"
 	"time"
 )
 
-// LoggerConfig defines the configuration for the logger
 type LoggerConfig struct {
-	FilenamePrefix string        // Prefix for the filename
-	MaxLines       int           // Maximum number of lines before rotating
-	RotationTime   time.Duration // Duration before rotating
+	FilenamePrefix string
+	MaxLines       int
+	RotationTime   time.Duration
 }
 
-// Logger is the main struct for logging
 type Logger struct {
 	config      LoggerConfig
 	currentFile *os.File
@@ -23,7 +23,6 @@ type Logger struct {
 	mu          sync.Mutex
 }
 
-// NewLogger creates a new logger with the given configuration
 func NewLogger(config LoggerConfig) (*Logger, error) {
 	logger := &Logger{
 		config: config,
@@ -32,11 +31,10 @@ func NewLogger(config LoggerConfig) (*Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	go logger.timeBasedRotation() // Start time-based rotation
+	go logger.timeBasedRotation()
 	return logger, nil
 }
 
-// Log logs the object as a JSON line
 func (l *Logger) Log(obj interface{}) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -46,7 +44,6 @@ func (l *Logger) Log(obj interface{}) error {
 		return err
 	}
 
-	// Write the line
 	_, err = fmt.Fprintln(l.currentFile, string(line))
 	if err != nil {
 		return err
@@ -54,15 +51,28 @@ func (l *Logger) Log(obj interface{}) error {
 
 	l.lineCount++
 	if l.lineCount >= l.config.MaxLines {
-		return l.rotateFile() // Rotate file based on line count
+		return l.rotateFile()
 	}
 
 	return nil
 }
 
-// rotateFile rotates the log file
+// rotateFile rotates and compresses the log file
 func (l *Logger) rotateFile() error {
 	if l.currentFile != nil {
+		// Open a gzip writer to compress the existing file
+		gzipFilename := fmt.Sprintf("%s.gz", l.currentFile.Name())
+		gzipFile, err := os.Create(gzipFilename)
+		if err != nil {
+			return err
+		}
+		writer := gzip.NewWriter(gzipFile)
+		l.currentFile.Seek(0, 0) // Move to start of file
+		if _, err := io.Copy(writer, l.currentFile); err != nil {
+			return err
+		}
+		writer.Close()
+		gzipFile.Close()
 		l.currentFile.Close()
 	}
 
@@ -77,11 +87,10 @@ func (l *Logger) rotateFile() error {
 	return nil
 }
 
-// timeBasedRotation periodically rotates the log file based on time
 func (l *Logger) timeBasedRotation() {
 	for range time.Tick(l.config.RotationTime) {
 		l.mu.Lock()
-		l.rotateFile() // Rotate file based on time
+		l.rotateFile()
 		l.mu.Unlock()
 	}
 }
