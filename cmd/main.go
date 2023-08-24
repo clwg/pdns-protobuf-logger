@@ -38,7 +38,7 @@ func main() {
 
 		DetailedConfig := writer.LoggerConfig{
 			FilenamePrefix: "detailed",
-			LogDir:         "./logz",
+			LogDir:         "./logs",
 			MaxLines:       10,
 			RotationTime:   600 * time.Second,
 		}

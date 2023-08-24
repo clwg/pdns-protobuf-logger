@@ -12,45 +12,44 @@ import (
 )
 
 func PassiveDNS(logger *writer.Logger) {
-	log.Printf("Passive logging enabled")
+	log.Printf("Passive lgoging enabled")
 	for message := range RawMessageChannel {
-		// Client queryresponse only
-		if message.GetType() == pb.PBDNSMessage_DNSResponseType {
-			for _, rrs := range message.Response.GetRrs() {
+		if message.GetType() != pb.PBDNSMessage_DNSResponseType {
+			continue
+		}
 
-				passiveRecord := PassiveDNSRecord{}
+		for _, rrs := range message.Response.GetRrs() {
+			passiveRecord := PassiveDNSRecord{}
 
-				var rdata string
-				if rrs.GetType() == 1 || rrs.GetType() == 28 {
-					rdata = net.IP(rrs.GetRdata()).String()
-				} else {
-					rdata = string(rrs.GetRdata())
-				}
+			var rdata string
 
-				qname := message.Question.GetQName()
-				rname := rrs.GetName()
-				rtype := rrs.GetType()
-				keyParts := []string{qname, rname, fmt.Sprint(rtype), rdata}
-				separator := ":"
-				key := strings.Join(keyParts, separator)
-
-				id, err := utils.GenerateUUIDv5(key)
-				if err != nil {
-					log.Printf("Error generating UUID: %v", err)
-				}
-
-				passiveRecord.Timestamp = utils.ConvertToTimestamp(message.GetTimeSec(), message.GetTimeUsec())
-				passiveRecord.Id = id
-				passiveRecord.Qname = qname
-				passiveRecord.Rname = rname
-				passiveRecord.Rtype = rtype
-				passiveRecord.Rdata = rdata
-
-				//log.Printf("%+v", passiveRecord)
-
-				logger.Log(passiveRecord)
-
+			switch rrs.GetType() {
+			case 1, 28:
+				rdata = net.IP(rrs.GetRdata()).String()
+			default:
+				rdata = string(rrs.GetRdata())
 			}
+
+			qname := message.Question.GetQName()
+			rname := rrs.GetName()
+			rtype := rrs.GetType()
+			keySeparator := ":"
+			key := strings.Join([]string{qname, rname, fmt.Sprint(rtype), rdata}, keySeparator)
+
+			id, err := utils.GenerateUUIDv5(key)
+			if err != nil {
+				log.Printf("Error generating UUID: %v", err)
+				continue
+			}
+
+			passiveRecord.Timestamp = utils.ConvertToTimestamp(message.GetTimeSec(), message.GetTimeUsec())
+			passiveRecord.Id = id
+			passiveRecord.Qname = qname
+			passiveRecord.Rname = rname
+			passiveRecord.Rtype = rtype
+			passiveRecord.Rdata = rdata
+
+			logger.Log(passiveRecord)
 		}
 	}
 }

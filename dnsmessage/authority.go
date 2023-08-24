@@ -22,9 +22,11 @@ func Authoritative(logger *writer.Logger) {
 				authorityRecord := AuthoritativeDNSRecord{}
 
 				var rdata string
-				if rrs.GetType() == 1 || rrs.GetType() == 28 {
+
+				switch rrs.GetType() {
+				case 1, 28:
 					rdata = net.IP(rrs.GetRdata()).String()
-				} else {
+				default:
 					rdata = string(rrs.GetRdata())
 				}
 
