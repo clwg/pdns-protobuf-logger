@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 )
 
 type LoggerConfig struct {
+	LogDir         string
 	FilenamePrefix string
 	MaxLines       int
 	RotationTime   time.Duration
@@ -59,9 +61,22 @@ func (l *Logger) Log(obj interface{}) error {
 
 // rotateFile rotates and compresses the log file
 func (l *Logger) rotateFile() error {
+	// Check if log directory exists, if not, create it
+	if _, err := os.Stat(l.config.LogDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(l.config.LogDir, 0755); err != nil {
+			return err
+		}
+	}
+
 	if l.currentFile != nil {
 		// Open a gzip writer to compress the existing file
-		gzipFilename := fmt.Sprintf("%s.gz", l.currentFile.Name())
+		archiveDir := filepath.Join(l.config.LogDir, "archive") // Define the archive directory
+		if _, err := os.Stat(archiveDir); os.IsNotExist(err) {
+			if err := os.MkdirAll(archiveDir, 0755); err != nil { // Create archive directory if it does not exist
+				return err
+			}
+		}
+		gzipFilename := filepath.Join(archiveDir, fmt.Sprintf("%s.gz", filepath.Base(l.currentFile.Name())))
 		gzipFile, err := os.Create(gzipFilename)
 		if err != nil {
 			return err
@@ -73,11 +88,19 @@ func (l *Logger) rotateFile() error {
 		}
 		writer.Close()
 		gzipFile.Close()
+		originalFileName := l.currentFile.Name() // Storing the original filename for deletion
 		l.currentFile.Close()
+
+		// Remove the original file after compression
+		if err := os.Remove(originalFileName); err != nil {
+			return err
+		}
 	}
 
 	filename := fmt.Sprintf("%s_%s.log", l.config.FilenamePrefix, time.Now().Format(time.RFC3339))
-	file, err := os.Create(filename)
+	// Use filepath.Join to combine the directory and filename
+	fullPath := filepath.Join(l.config.LogDir, filename)
+	file, err := os.Create(fullPath)
 	if err != nil {
 		return err
 	}

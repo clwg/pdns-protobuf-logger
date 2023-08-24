@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	// Command-line switches
+
 	var passiveLogging bool
 	var detailedLogging bool
 	var authoritativeLogging bool
@@ -37,9 +37,10 @@ func main() {
 		log.Printf("Detailed logging enabled")
 
 		DetailedConfig := writer.LoggerConfig{
-			FilenamePrefix: "logs/detailed/dns",
-			MaxLines:       100000,
-			RotationTime:   6000 * time.Second,
+			FilenamePrefix: "detailed",
+			LogDir:         "./logz",
+			MaxLines:       10,
+			RotationTime:   600 * time.Second,
 		}
 
 		DetailedLogger, err := writer.NewLogger(DetailedConfig)
@@ -53,9 +54,10 @@ func main() {
 	if passiveLogging {
 
 		PassiveConfig := writer.LoggerConfig{
-			FilenamePrefix: "logs/passive/dns",
+			FilenamePrefix: "passive",
+			LogDir:         "./logs",
 			MaxLines:       100000,
-			RotationTime:   6000 * time.Second,
+			RotationTime:   600 * time.Second,
 		}
 
 		PassiveLogger, err := writer.NewLogger(PassiveConfig)
@@ -69,9 +71,10 @@ func main() {
 	if authoritativeLogging {
 
 		AuthoritativeConfig := writer.LoggerConfig{
-			FilenamePrefix: "logs/authoritative/dns",
+			FilenamePrefix: "authoritative",
+			LogDir:         "./logs",
 			MaxLines:       100000,
-			RotationTime:   6000 * time.Second,
+			RotationTime:   600 * time.Second,
 		}
 
 		AuthoritativeLogger, err := writer.NewLogger(AuthoritativeConfig)
@@ -85,9 +88,10 @@ func main() {
 	if queryresponseLogging {
 
 		QueryResponseConfig := writer.LoggerConfig{
-			FilenamePrefix: "logs/queryresponse/dns",
+			FilenamePrefix: "queryresponse",
+			LogDir:         "./logs",
 			MaxLines:       100000,
-			RotationTime:   6000 * time.Second,
+			RotationTime:   600 * time.Second,
 		}
 
 		QueryResponseLogger, err := writer.NewLogger(QueryResponseConfig)
