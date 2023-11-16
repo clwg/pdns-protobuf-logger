@@ -4,7 +4,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/clwg/pdns-protobuf-logger/writer"
+	"github.com/clwg/goProtobufPDNSLogger/writer"
 )
 
 func TaggedMessages(logger *writer.Logger) {

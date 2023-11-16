@@ -7,8 +7,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/clwg/pdns-protobuf-logger/dnsmessage"
-	pb "github.com/clwg/pdns-protobuf-logger/protos"
+	"github.com/clwg/goProtobufPDNSLogger/dnsmessage"
+	pb "github.com/clwg/goProtobufPDNSLogger/protos"
 	"google.golang.org/protobuf/proto"
 )
 

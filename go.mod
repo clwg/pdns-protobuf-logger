@@ -1,4 +1,4 @@
-module github.com/clwg/pdns-protobuf-logger
+module github.com/clwg/goProtobufPDNSLogger
 
 go 1.20
 

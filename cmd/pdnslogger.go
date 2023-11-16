@@ -6,10 +6,10 @@ import (
 	"net"
 	"time"
 
-	"github.com/clwg/pdns-protobuf-logger/dnsmessage"
+	"github.com/clwg/goProtobufPDNSLogger/dnsmessage"
 
-	"github.com/clwg/pdns-protobuf-logger/connection"
-	"github.com/clwg/pdns-protobuf-logger/writer"
+	"github.com/clwg/goProtobufPDNSLogger/connection"
+	"github.com/clwg/goProtobufPDNSLogger/writer"
 )
 
 func main() {

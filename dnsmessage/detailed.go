@@ -3,8 +3,8 @@ package dnsmessage
 import (
 	"net"
 
-	pb "github.com/clwg/pdns-protobuf-logger/protos"
-	"github.com/clwg/pdns-protobuf-logger/writer"
+	pb "github.com/clwg/goProtobufPDNSLogger/protos"
+	"github.com/clwg/goProtobufPDNSLogger/writer"
 )
 
 var RawMessageChannel = make(chan *pb.PBDNSMessage, 10)
