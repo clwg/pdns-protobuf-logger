@@ -23,7 +23,7 @@ jobs:
 
 
     - name: Build
-      run: go build -v -o pdnslogger ./cmd/pdnslogger
+      run: go build -v -o pdnslogger ./cmd/
 
       
     - name: Test
