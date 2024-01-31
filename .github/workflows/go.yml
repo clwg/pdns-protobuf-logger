@@ -1,4 +1,4 @@
-# This workflow will build a golang project
+# This workflow will build a golang project and upload the binary as an artifact
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
 name: Go
@@ -22,7 +22,13 @@ jobs:
         go-version: '1.20'
 
     - name: Build
-      run: go build -v ./...
+      run: go build -v -o goprotobufdnslogger ./...
 
     - name: Test
       run: go test -v ./...
+
+    - name: Upload goprotobufdnslogger binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: goprotobufdnslogger
+        path: ./goprotobufdnslogger
