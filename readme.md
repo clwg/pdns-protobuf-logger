@@ -27,6 +27,7 @@ QueryResponseConfig := writer.LoggerConfig{
     MaxLines:       100000,
     RotationTime:   600 * time.Second,
 }
+```
 
 
 ## Installation
