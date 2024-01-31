@@ -21,14 +21,16 @@ jobs:
       with:
         go-version: '1.20'
 
-    - name: Build
-      run: go build -v -o goprotobufdnslogger ./...
 
+    - name: Build
+      run: go build -v -o pdnslogger ./cmd/pdnslogger
+
+      
     - name: Test
       run: go test -v ./...
 
-    - name: Upload goprotobufdnslogger binary
+    - name: Upload pdnslogger binary
       uses: actions/upload-artifact@v2
       with:
-        name: goprotobufdnslogger
-        path: ./goprotobufdnslogger
+        name: pdnslogger
+        path: ./pdnslogger
