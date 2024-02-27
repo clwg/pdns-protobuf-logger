@@ -5,9 +5,9 @@ import (
 	"net"
 	"strings"
 
-	pb "github.com/clwg/goProtobufPDNSLogger/protos"
-	"github.com/clwg/goProtobufPDNSLogger/utils"
-	"github.com/clwg/goProtobufPDNSLogger/writer"
+	pb "github.com/clwg/pdns-protobuf-logger/protos"
+	"github.com/clwg/pdns-protobuf-logger/utils"
+	"github.com/clwg/pdns-protobuf-logger/writer"
 )
 
 func Authoritative(logger *writer.Logger) {

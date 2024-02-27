@@ -1,8 +1,8 @@
-# goProtobufPDNSLogger
+# pdns-protobuf-logger
 
-[![Go](https://github.com/clwg/goProtobufPDNSLogger/actions/workflows/go.yml/badge.svg)](https://github.com/clwg/goProtobufPDNSLogger/actions/workflows/go.yml)
+[![Go](https://github.com/clwg/pdns-protobuf-logger/actions/workflows/go.yml/badge.svg)](https://github.com/clwg/pdns-protobuf-logger/actions/workflows/go.yml)
 
-`goProtobufPDNSLogger` is a powerDNS(recursor, authoritative, dnsdist) that logs DNS protobuf messages to rotating compressed jsonl log files.
+`pdns-protobuf-logger` is a powerDNS(recursor, authoritative, dnsdist) that logs DNS protobuf messages to rotating compressed jsonl log files.
 
 - Authoritative DNS message logging
 - Query response logging
@@ -33,8 +33,8 @@ QueryResponseConfig := writer.LoggerConfig{
 ## Installation
 
 ```bash
-git clone https://github.com/clwg/goProtobufPDNSLogger.git
-cd goProtobufPDNSLogger
+git clone https://github.com/clwg/pdns-protobuf-logger.git
+cd pdns-protobuf-logger
 go build
 ```
 
