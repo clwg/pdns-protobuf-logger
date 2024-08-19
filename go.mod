@@ -1,8 +1,6 @@
 module github.com/clwg/pdns-protobuf-logger
 
-go 1.21.6
-
-toolchain go1.22.5
+go 1.22.5
 
 require (
 	github.com/clwg/go-rotating-logger v0.0.0-20240609163459-44669859dda2
