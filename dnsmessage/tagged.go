@@ -4,10 +4,10 @@ import (
 	"log"
 	"net"
 
-	"github.com/clwg/pdns-protobuf-logger/writer"
+	logwriter "github.com/clwg/go-rotating-logger"
 )
 
-func TaggedMessages(logger *writer.Logger) {
+func TaggedMessages(logger *logwriter.Logger) {
 	log.Printf("Passive lgoging enabled")
 	for message := range RawMessageChannel {
 

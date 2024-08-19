@@ -8,8 +8,8 @@ import (
 
 	"github.com/clwg/pdns-protobuf-logger/dnsmessage"
 
+	logwriter "github.com/clwg/go-rotating-logger"
 	"github.com/clwg/pdns-protobuf-logger/connection"
-	"github.com/clwg/pdns-protobuf-logger/writer"
 )
 
 func main() {
@@ -19,15 +19,15 @@ func main() {
 	var authoritativeLogging bool
 	var queryresponseLogging bool
 
-	flag.BoolVar(&passiveLogging, "passive", true, "Enable passive logging")
+	flag.BoolVar(&passiveLogging, "passive", false, "Enable passive logging")
 	flag.BoolVar(&detailedLogging, "detailed", false, "Enable detailed logging")
 	flag.BoolVar(&authoritativeLogging, "authoritative", false, "Enable authoritative logging")
 	flag.BoolVar(&queryresponseLogging, "queryresponse", false, "Enable client query response logging")
 
 	flag.Parse()
 
-	// Listen on TCP port 6666 on all interfaces.
-	listener, err := net.Listen("tcp", ":6666")
+	// Listen on TCP port 44353 on all interfaces.
+	listener, err := net.Listen("tcp", ":44353")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -36,14 +36,14 @@ func main() {
 	if detailedLogging {
 		log.Printf("Detailed logging enabled")
 
-		DetailedConfig := writer.LoggerConfig{
+		DetailedConfig := logwriter.LoggerConfig{
 			FilenamePrefix: "detailed",
 			LogDir:         "./logs",
-			MaxLines:       10,
+			MaxLines:       100000,
 			RotationTime:   600 * time.Second,
 		}
 
-		DetailedLogger, err := writer.NewLogger(DetailedConfig)
+		DetailedLogger, err := logwriter.NewLogger(DetailedConfig)
 		if err != nil {
 			panic(err)
 		}
@@ -53,14 +53,14 @@ func main() {
 
 	if passiveLogging {
 
-		PassiveConfig := writer.LoggerConfig{
+		PassiveConfig := logwriter.LoggerConfig{
 			FilenamePrefix: "passive",
 			LogDir:         "./logs",
 			MaxLines:       100000,
 			RotationTime:   600 * time.Second,
 		}
 
-		PassiveLogger, err := writer.NewLogger(PassiveConfig)
+		PassiveLogger, err := logwriter.NewLogger(PassiveConfig)
 		if err != nil {
 			panic(err)
 		}
@@ -70,14 +70,14 @@ func main() {
 
 	if authoritativeLogging {
 
-		AuthoritativeConfig := writer.LoggerConfig{
+		AuthoritativeConfig := logwriter.LoggerConfig{
 			FilenamePrefix: "authoritative",
 			LogDir:         "./logs",
 			MaxLines:       100000,
 			RotationTime:   600 * time.Second,
 		}
 
-		AuthoritativeLogger, err := writer.NewLogger(AuthoritativeConfig)
+		AuthoritativeLogger, err := logwriter.NewLogger(AuthoritativeConfig)
 		if err != nil {
 			panic(err)
 		}
@@ -87,14 +87,14 @@ func main() {
 
 	if queryresponseLogging {
 
-		QueryResponseConfig := writer.LoggerConfig{
+		QueryResponseConfig := logwriter.LoggerConfig{
 			FilenamePrefix: "queryresponse",
 			LogDir:         "./logs",
 			MaxLines:       100000,
 			RotationTime:   600 * time.Second,
 		}
 
-		QueryResponseLogger, err := writer.NewLogger(QueryResponseConfig)
+		QueryResponseLogger, err := logwriter.NewLogger(QueryResponseConfig)
 		if err != nil {
 			panic(err)
 		}

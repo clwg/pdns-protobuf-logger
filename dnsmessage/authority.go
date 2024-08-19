@@ -5,12 +5,12 @@ import (
 	"net"
 	"strings"
 
+	logwriter "github.com/clwg/go-rotating-logger"
 	pb "github.com/clwg/pdns-protobuf-logger/protos"
 	"github.com/clwg/pdns-protobuf-logger/utils"
-	"github.com/clwg/pdns-protobuf-logger/writer"
 )
 
-func Authoritative(logger *writer.Logger) {
+func Authoritative(logger *logwriter.Logger) {
 
 	log.Printf("Authoritative logging enabled")
 

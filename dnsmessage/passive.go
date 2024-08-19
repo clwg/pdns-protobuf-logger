@@ -6,12 +6,12 @@ import (
 	"net"
 	"strings"
 
+	logwriter "github.com/clwg/go-rotating-logger"
 	pb "github.com/clwg/pdns-protobuf-logger/protos"
 	"github.com/clwg/pdns-protobuf-logger/utils"
-	"github.com/clwg/pdns-protobuf-logger/writer"
 )
 
-func PassiveDNS(logger *writer.Logger) {
+func PassiveDNS(logger *logwriter.Logger) {
 	log.Printf("Passive logging enabled")
 	for message := range RawMessageChannel {
 		if message.GetType() != pb.PBDNSMessage_DNSResponseType {
