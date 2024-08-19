@@ -2,41 +2,27 @@
 
 [![Go](https://github.com/clwg/pdns-protobuf-logger/actions/workflows/go.yml/badge.svg)](https://github.com/clwg/pdns-protobuf-logger/actions/workflows/go.yml)
 
-`pdns-protobuf-logger` is a powerDNS(recursor, authoritative, dnsdist) that logs DNS protobuf messages to rotating compressed jsonl log files.
+`pdns-protobuf-logger` is a powerDNS(recursor, authoritative, dnsdist) reciever that logs DNS protobuf messages to rotating compressed jsonl log files.
 
-- Authoritative DNS message logging
-- Query response logging
-- Configurable logging parameters such as filename prefix, log directory, maximum lines per log file, and log rotation time
+
+## Features
+
+- Detailed logging of DNS queries and responses
+- Passive logging focusing on response data.
+- Authoritative logging that logs the iterative response server (must be set to root hints)
+- Query Response logging that provides the full query and the ip address of the client.
+- Automatic log rotation and compression.
 
 ## Usage
 
-The main functionality of the project is encapsulated in the `cmd/pdnslogger.go` file. This file sets up the logging configurations and handles incoming connections.
-
-```go
-// Initialize the logger configurations
-AuthoritativeConfig := writer.LoggerConfig{
-    FilenamePrefix: "authoritative",
-    LogDir:         "./logs",
-    MaxLines:       100000,
-    RotationTime:   600 * time.Second,
-}
-
-QueryResponseConfig := writer.LoggerConfig{
-    FilenamePrefix: "queryresponse",
-    LogDir:         "./logs",
-    MaxLines:       100000,
-    RotationTime:   600 * time.Second,
-}
-```
-
-
-## Installation
+Modify the config.json to suit your needs and run the application.
 
 ```bash
-git clone https://github.com/clwg/pdns-protobuf-logger.git
-cd pdns-protobuf-logger
-go build
+go run cmd/pdnslogger.go -config config.json
 ```
+
+Log files are rotated per the configuration file and are compressed using gzip and moved into the archive directory.
+
 
 ## Contributing
 

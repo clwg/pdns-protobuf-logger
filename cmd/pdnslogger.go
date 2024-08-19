@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"log"
 	"net"
+	"os"
 	"time"
 
 	"github.com/clwg/pdns-protobuf-logger/dnsmessage"
@@ -12,35 +14,42 @@ import (
 	"github.com/clwg/pdns-protobuf-logger/connection"
 )
 
+type Config struct {
+	PassiveLogging       bool   `json:"passive_logging"`
+	DetailedLogging      bool   `json:"detailed_logging"`
+	AuthoritativeLogging bool   `json:"authoritative_logging"`
+	QueryResponseLogging bool   `json:"query_response_logging"`
+	LogDir               string `json:"log_dir"`
+	MaxLines             int    `json:"max_lines"`
+	RotationTimeSeconds  int    `json:"rotation_time_seconds"`
+	Port                 string `json:"port"`
+}
+
 func main() {
-
-	var passiveLogging bool
-	var detailedLogging bool
-	var authoritativeLogging bool
-	var queryresponseLogging bool
-
-	flag.BoolVar(&passiveLogging, "passive", false, "Enable passive logging")
-	flag.BoolVar(&detailedLogging, "detailed", false, "Enable detailed logging")
-	flag.BoolVar(&authoritativeLogging, "authoritative", false, "Enable authoritative logging")
-	flag.BoolVar(&queryresponseLogging, "queryresponse", false, "Enable client query response logging")
-
+	configPath := flag.String("config", "config.json", "Path to the configuration file")
 	flag.Parse()
 
-	// Listen on TCP port 44353 on all interfaces.
-	listener, err := net.Listen("tcp", ":44353")
+	// Load configuration from the specified file
+	config, err := loadConfig(*configPath)
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	// Listen on TCP port specified in the config
+	listener, err := net.Listen("tcp", config.Port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	defer listener.Close()
 
-	if detailedLogging {
+	if config.DetailedLogging {
 		log.Printf("Detailed logging enabled")
 
 		DetailedConfig := logwriter.LoggerConfig{
 			FilenamePrefix: "detailed",
-			LogDir:         "./logs",
-			MaxLines:       100000,
-			RotationTime:   600 * time.Second,
+			LogDir:         config.LogDir,
+			MaxLines:       config.MaxLines,
+			RotationTime:   time.Duration(config.RotationTimeSeconds) * time.Second,
 		}
 
 		DetailedLogger, err := logwriter.NewLogger(DetailedConfig)
@@ -48,16 +57,16 @@ func main() {
 			panic(err)
 		}
 
-		go dnsmessage.Detailed(DetailedLogger) // Goroutine for detailed DNS messages
+		go dnsmessage.Detailed(DetailedLogger)
 	}
 
-	if passiveLogging {
+	if config.PassiveLogging {
 
 		PassiveConfig := logwriter.LoggerConfig{
 			FilenamePrefix: "passive",
-			LogDir:         "./logs",
-			MaxLines:       100000,
-			RotationTime:   600 * time.Second,
+			LogDir:         config.LogDir,
+			MaxLines:       config.MaxLines,
+			RotationTime:   time.Duration(config.RotationTimeSeconds) * time.Second,
 		}
 
 		PassiveLogger, err := logwriter.NewLogger(PassiveConfig)
@@ -68,13 +77,13 @@ func main() {
 		go dnsmessage.PassiveDNS(PassiveLogger)
 	}
 
-	if authoritativeLogging {
+	if config.AuthoritativeLogging {
 
 		AuthoritativeConfig := logwriter.LoggerConfig{
 			FilenamePrefix: "authoritative",
-			LogDir:         "./logs",
-			MaxLines:       100000,
-			RotationTime:   600 * time.Second,
+			LogDir:         config.LogDir,
+			MaxLines:       config.MaxLines,
+			RotationTime:   time.Duration(config.RotationTimeSeconds) * time.Second,
 		}
 
 		AuthoritativeLogger, err := logwriter.NewLogger(AuthoritativeConfig)
@@ -85,13 +94,13 @@ func main() {
 		go dnsmessage.Authoritative(AuthoritativeLogger)
 	}
 
-	if queryresponseLogging {
+	if config.QueryResponseLogging {
 
 		QueryResponseConfig := logwriter.LoggerConfig{
 			FilenamePrefix: "queryresponse",
-			LogDir:         "./logs",
-			MaxLines:       100000,
-			RotationTime:   600 * time.Second,
+			LogDir:         config.LogDir,
+			MaxLines:       config.MaxLines,
+			RotationTime:   time.Duration(config.RotationTimeSeconds) * time.Second,
 		}
 
 		QueryResponseLogger, err := logwriter.NewLogger(QueryResponseConfig)
@@ -111,4 +120,20 @@ func main() {
 		}
 		go connection.HandleConnection(conn)
 	}
+}
+
+func loadConfig(filename string) (*Config, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	config := &Config{}
+	err = json.NewDecoder(file).Decode(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return config, nil
 }
