@@ -3,81 +3,80 @@ package dnsmessage
 import "time"
 
 type DNSMessage struct {
-	Question                DNSQuestion // Struct
-	Response                DNSResponse // Struct
-	InBytes                 uint64      // 8 bytes
-	TimeSec                 uint32      // 4 bytes
-	TimeUsec                uint32      // 4 bytes
-	Id                      uint32      // 4 bytes
-	FromPort                uint32      // 4 bytes
-	ToPort                  uint32      // 4 bytes
-	Type                    string      // String (pointer)
-	ServerIdentity          string      // String (pointer)
-	SocketFamily            string      // String (pointer)
-	SocketProtocol          string      // String (pointer)
-	From                    string      // String (pointer)
-	To                      string      // String (pointer)
-	RequestorId             string      // String (pointer)
-	DeviceName              string      // String (pointer)
-	NewlyObservedDomain     bool        // 1 byte
-	OriginalRequestorSubnet []byte      // Slice (pointer)
-	InitialRequestId        []byte      // Slice (pointer)
-	DeviceId                []byte      // Slice (pointer)
-	MessageId               []byte      // Slice (pointer)
-
+	Question                DNSQuestion `json:"question"`
+	Response                DNSResponse `json:"response"`
+	InBytes                 uint64      `json:"in_bytes"`
+	TimeSec                 uint32      `json:"time_sec"`
+	TimeUsec                uint32      `json:"time_usec"`
+	Id                      uint32      `json:"id"`
+	FromPort                uint32      `json:"from_port"`
+	ToPort                  uint32      `json:"to_port"`
+	Type                    string      `json:"type"`
+	ServerIdentity          string      `json:"server_identity"`
+	SocketFamily            string      `json:"socket_family"`
+	SocketProtocol          string      `json:"socket_protocol"`
+	From                    string      `json:"from"`
+	To                      string      `json:"to"`
+	RequestorId             string      `json:"requestor_id"`
+	DeviceName              string      `json:"device_name"`
+	NewlyObservedDomain     bool        `json:"newly_observed_domain"`
+	OriginalRequestorSubnet []byte      `json:"original_requestor_subnet"`
+	InitialRequestId        []byte      `json:"initial_request_id"`
+	DeviceId                []byte      `json:"device_id"`
+	MessageId               []byte      `json:"message_id"`
 }
 
 type DNSQuestion struct {
-	QName  string // String (pointer)
-	QType  uint32 // 4 bytes
-	QClass uint32 // 4 bytes
+	QName  string `json:"qname"`
+	QType  uint32 `json:"qtype"`
+	QClass uint32 `json:"qclass"`
 }
 
 type DNSResponse struct {
-	AppliedPolicy        string              // String (pointer)
-	AppliedPolicyTrigger string              // String (pointer)
-	AppliedPolicyHit     string              // String (pointer)
-	ValidationState      string              // String (pointer)
-	Rrs                  []DNSResponse_DNSRR // Slice (pointer)
-	Tags                 []string            // Slice (pointer)
-	Rcode                uint32              // 4 bytes
-	QueryTimeSec         uint32              // 4 bytes
-	QueryTimeUsec        uint32              // 4 bytes
+	AppliedPolicy        string              `json:"applied_policy"`
+	AppliedPolicyTrigger string              `json:"applied_policy_trigger"`
+	AppliedPolicyHit     string              `json:"applied_policy_hit"`
+	ValidationState      string              `json:"validation_state"`
+	Rrs                  []DNSResponse_DNSRR `json:"rrs"`
+	Tags                 []string            `json:"tags"`
+	Rcode                uint32              `json:"rcode"`
+	QueryTimeSec         uint32              `json:"query_time_sec"`
+	QueryTimeUsec        uint32              `json:"query_time_usec"`
 }
 
 type DNSResponse_DNSRR struct {
-	Name  string // String (pointer)
-	Rdata string // String (pointer)
-	Type  uint32 // 4 bytes
-	Class uint32 // 4 bytes
-	Ttl   uint32 // 4 bytes
-	Udr   bool   // 1 byte
+	Name  string `json:"name"`
+	Rdata string `json:"rdata"`
+	Type  uint32 `json:"type"`
+	Class uint32 `json:"class"`
+	Ttl   uint32 `json:"ttl"`
+	Udr   bool   `json:"udr"`
 }
 
 type PassiveDNSRecord struct {
-	Timestamp time.Time // 24 bytes (on 64-bit architecture)
-	Id        string    // String (pointer)
-	Qname     string    // String (pointer)
-	Rname     string    // String (pointer)
-	Rdata     string    // String (pointer)
-	Rtype     uint32    // 4 bytes
+	Timestamp time.Time `json:"timestamp"`
+	Id        string    `json:"id"`
+	Qname     string    `json:"qname"`
+	Rname     string    `json:"rname"`
+	Rdata     string    `json:"rdata"`
+	Rtype     uint32    `json:"rtype"`
 }
 
 type AuthoritativeDNSRecord struct {
-	Timestamp time.Time // 24 bytes (on 64-bit architecture)
-	Id        string    // String (pointer)
-	Qname     string    // String (pointer)
-	ServerIp  string    // String (pointer)
-	Rdata     string    // String (pointer)
+	Timestamp time.Time `json:"timestamp"`
+	Id        string    `json:"id"`
+	Qname     string    `json:"qname"`
+	ServerIp  string    `json:"server_ip"`
+	Rdata     string    `json:"rdata"`
 }
 
 type QueryResponseRecord struct {
-	Timestamp      time.Time // 24 bytes (on 64-bit architecture)
-	SocketProtocol string    // String (pointer)
-	Qname          string    // String (pointer)
-	FromIp         string    // String (pointer)
-	ToIp           string    // String (pointer)
-	Rcode          uint32    // 4 bytes
-	FromPort       uint32    // 4 bytes
-	ToPort         uint32    // 4 bytes
+	Timestamp      time.Time `json:"timestamp"`
+	SocketProtocol string    `json:"socket_protocol"`
+	Qname          string    `json:"qname"`
+	FromIp         string    `json:"from_ip"`
+	ToIp           string    `json:"to_ip"`
+	Rcode          uint32    `json:"rcode"`
+	FromPort       uint32    `json:"from_port"`
+	ToPort         uint32    `json:"to_port"`
 }
