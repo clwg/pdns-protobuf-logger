@@ -12,15 +12,15 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// HandleConnection reads incoming messages from a net.Conn and unmarshals them into a pb.PBDNSMessage.
-// It then sends the unmarshalled message to the dnsmessage.RawMessageChannel.
-// If there is an error reading or unmarshalling the message, the function logs the error and returns.
-// The function sets a read deadline of 5 minutes on the connection.
 func HandleConnection(conn net.Conn) {
 	defer conn.Close()
-	conn.SetReadDeadline(time.Now().Add(5 * time.Minute))
+
+	timeoutDuration := 5 * time.Minute
 
 	for {
+		// Reset the read deadline after each successful read
+		conn.SetReadDeadline(time.Now().Add(timeoutDuration))
+
 		lenBuf := make([]byte, 2)
 		_, err := io.ReadFull(conn, lenBuf)
 		if err != nil {
