@@ -3,13 +3,13 @@ package dnsmessage
 import (
 	"net"
 
+	logwriter "github.com/clwg/go-rotating-logger"
 	pb "github.com/clwg/pdns-protobuf-logger/protos"
-	"github.com/clwg/pdns-protobuf-logger/writer"
 )
 
 var RawMessageChannel = make(chan *pb.PBDNSMessage, 10)
 
-func Detailed(logger *writer.Logger) {
+func Detailed(logger *logwriter.Logger) {
 
 	for message := range RawMessageChannel {
 		dnsMsg := DNSMessage{

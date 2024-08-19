@@ -4,12 +4,12 @@ import (
 	"log"
 	"net"
 
+	logwriter "github.com/clwg/go-rotating-logger"
 	pb "github.com/clwg/pdns-protobuf-logger/protos"
 	"github.com/clwg/pdns-protobuf-logger/utils"
-	"github.com/clwg/pdns-protobuf-logger/writer"
 )
 
-func QueryResponse(logger *writer.Logger) {
+func QueryResponse(logger *logwriter.Logger) {
 
 	log.Printf("Query Response logging enabled")
 
