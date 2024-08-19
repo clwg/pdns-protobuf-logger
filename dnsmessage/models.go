@@ -3,80 +3,80 @@ package dnsmessage
 import "time"
 
 type DNSMessage struct {
-	Type                    string
-	MessageId               []byte
-	ServerIdentity          string
-	SocketFamily            string
-	SocketProtocol          string
-	From                    string
-	To                      string
-	InBytes                 uint64
-	TimeSec                 uint32
-	TimeUsec                uint32
-	Id                      uint32
-	Question                DNSQuestion
-	Response                DNSResponse
-	OriginalRequestorSubnet []byte
-	RequestorId             string
-	InitialRequestId        []byte
-	DeviceId                []byte
-	NewlyObservedDomain     bool
-	DeviceName              string
-	FromPort                uint32
-	ToPort                  uint32
+	Question                DNSQuestion `json:"question"`
+	Response                DNSResponse `json:"response"`
+	InBytes                 uint64      `json:"in_bytes"`
+	TimeSec                 uint32      `json:"time_sec"`
+	TimeUsec                uint32      `json:"time_usec"`
+	Id                      uint32      `json:"id"`
+	FromPort                uint32      `json:"from_port"`
+	ToPort                  uint32      `json:"to_port"`
+	Type                    string      `json:"type"`
+	ServerIdentity          string      `json:"server_identity"`
+	SocketFamily            string      `json:"socket_family"`
+	SocketProtocol          string      `json:"socket_protocol"`
+	From                    string      `json:"from"`
+	To                      string      `json:"to"`
+	RequestorId             string      `json:"requestor_id"`
+	DeviceName              string      `json:"device_name"`
+	NewlyObservedDomain     bool        `json:"newly_observed_domain"`
+	OriginalRequestorSubnet []byte      `json:"original_requestor_subnet"`
+	InitialRequestId        []byte      `json:"initial_request_id"`
+	DeviceId                []byte      `json:"device_id"`
+	MessageId               []byte      `json:"message_id"`
 }
 
 type DNSQuestion struct {
-	QName  string
-	QType  uint32
-	QClass uint32
+	QName  string `json:"qname"`
+	QType  uint32 `json:"qtype"`
+	QClass uint32 `json:"qclass"`
 }
 
 type DNSResponse struct {
-	Rcode                uint32
-	Rrs                  []DNSResponse_DNSRR
-	AppliedPolicy        string
-	Tags                 []string
-	QueryTimeSec         uint32
-	QueryTimeUsec        uint32
-	AppliedPolicyTrigger string
-	AppliedPolicyHit     string
-	ValidationState      string
+	AppliedPolicy        string              `json:"applied_policy"`
+	AppliedPolicyTrigger string              `json:"applied_policy_trigger"`
+	AppliedPolicyHit     string              `json:"applied_policy_hit"`
+	ValidationState      string              `json:"validation_state"`
+	Rrs                  []DNSResponse_DNSRR `json:"rrs"`
+	Tags                 []string            `json:"tags"`
+	Rcode                uint32              `json:"rcode"`
+	QueryTimeSec         uint32              `json:"query_time_sec"`
+	QueryTimeUsec        uint32              `json:"query_time_usec"`
 }
 
 type DNSResponse_DNSRR struct {
-	Name  string
-	Type  uint32
-	Class uint32
-	Ttl   uint32
-	Rdata string
-	Udr   bool
+	Name  string `json:"name"`
+	Rdata string `json:"rdata"`
+	Type  uint32 `json:"type"`
+	Class uint32 `json:"class"`
+	Ttl   uint32 `json:"ttl"`
+	Udr   bool   `json:"udr"`
 }
 
 type PassiveDNSRecord struct {
-	Id        string
-	Qname     string
-	Rname     string
-	Rtype     uint32
-	Rdata     string
-	Timestamp time.Time
+	Timestamp time.Time `json:"timestamp"`
+	Id        string    `json:"id"`
+	Qname     string    `json:"qname"`
+	Rname     string    `json:"rname"`
+	Rdata     string    `json:"rdata"`
+	Rtype     uint32    `json:"rtype"`
 }
 
 type AuthoritativeDNSRecord struct {
-	Id        string
-	Qname     string
-	ServerIp  string
-	Rdata     string
-	Timestamp time.Time
+	Timestamp time.Time `json:"timestamp"`
+	Id        string    `json:"id"`
+	Qname     string    `json:"qname"`
+	ServerIp  string    `json:"server_ip"`
+	Rdata     string    `json:"rdata"`
 }
 
 type QueryResponseRecord struct {
-	SocketProtocol string
-	Qname          string
-	Rcode          uint32
-	FromIp         string
-	FromPort       uint32
-	ToIp           string
-	ToPort         uint32
-	Timestamp      time.Time
+	Timestamp      time.Time `json:"timestamp"`
+	SocketProtocol string    `json:"socket_protocol"`
+	Qname          string    `json:"qname"`
+	FromIp         string    `json:"from_ip"`
+	ToIp           string    `json:"to_ip"`
+	Rcode          uint32    `json:"rcode"`
+	FromPort       uint32    `json:"from_port"`
+	ToPort         uint32    `json:"to_port"`
 }
