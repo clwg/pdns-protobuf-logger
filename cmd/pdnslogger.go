@@ -8,21 +8,17 @@ import (
 	"os"
 	"time"
 
-	"github.com/clwg/pdns-protobuf-logger/dnsmessage"
-
 	logwriter "github.com/clwg/go-rotating-logger"
 	"github.com/clwg/pdns-protobuf-logger/connection"
+	"github.com/clwg/pdns-protobuf-logger/dnsmessage"
 )
 
 type Config struct {
-	PassiveLogging       bool   `json:"passive_logging"`
-	DetailedLogging      bool   `json:"detailed_logging"`
-	AuthoritativeLogging bool   `json:"authoritative_logging"`
-	QueryResponseLogging bool   `json:"query_response_logging"`
-	LogDir               string `json:"log_dir"`
-	MaxLines             int    `json:"max_lines"`
-	RotationTimeSeconds  int    `json:"rotation_time_seconds"`
-	Port                 string `json:"port"`
+	LogType             string `json:"log_type"`
+	LogDir              string `json:"log_dir"`
+	MaxLines            int    `json:"max_lines"`
+	RotationTimeSeconds int    `json:"rotation_time_seconds"`
+	Port                string `json:"port"`
 }
 
 func main() {
@@ -35,6 +31,17 @@ func main() {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
+	// Validate the logging type
+	validLogTypes := map[string]bool{
+		"detailed":       true,
+		"passive":        true,
+		"authoritative":  true,
+		"query_response": true,
+	}
+	if !validLogTypes[config.LogType] {
+		log.Fatalf("invalid log_type specified in config: %s", config.LogType)
+	}
+
 	// Listen on TCP port specified in the config
 	listener, err := net.Listen("tcp", config.Port)
 	if err != nil {
@@ -42,73 +49,34 @@ func main() {
 	}
 	defer listener.Close()
 
-	if config.DetailedLogging {
+	// Configure logging based on the specified log type
+	loggerConfig := logwriter.LoggerConfig{
+		FilenamePrefix: config.LogType,
+		LogDir:         config.LogDir,
+		MaxLines:       config.MaxLines,
+		RotationTime:   time.Duration(config.RotationTimeSeconds) * time.Second,
+	}
+
+	logger, err := logwriter.NewLogger(loggerConfig)
+	if err != nil {
+		log.Fatalf("failed to create logger: %v", err)
+	}
+
+	switch config.LogType {
+	case "detailed":
 		log.Printf("Detailed logging enabled")
-
-		DetailedConfig := logwriter.LoggerConfig{
-			FilenamePrefix: "detailed",
-			LogDir:         config.LogDir,
-			MaxLines:       config.MaxLines,
-			RotationTime:   time.Duration(config.RotationTimeSeconds) * time.Second,
-		}
-
-		DetailedLogger, err := logwriter.NewLogger(DetailedConfig)
-		if err != nil {
-			panic(err)
-		}
-
-		go dnsmessage.Detailed(DetailedLogger)
-	}
-
-	if config.PassiveLogging {
-
-		PassiveConfig := logwriter.LoggerConfig{
-			FilenamePrefix: "passive",
-			LogDir:         config.LogDir,
-			MaxLines:       config.MaxLines,
-			RotationTime:   time.Duration(config.RotationTimeSeconds) * time.Second,
-		}
-
-		PassiveLogger, err := logwriter.NewLogger(PassiveConfig)
-		if err != nil {
-			panic(err)
-		}
-
-		go dnsmessage.PassiveDNS(PassiveLogger)
-	}
-
-	if config.AuthoritativeLogging {
-
-		AuthoritativeConfig := logwriter.LoggerConfig{
-			FilenamePrefix: "authoritative",
-			LogDir:         config.LogDir,
-			MaxLines:       config.MaxLines,
-			RotationTime:   time.Duration(config.RotationTimeSeconds) * time.Second,
-		}
-
-		AuthoritativeLogger, err := logwriter.NewLogger(AuthoritativeConfig)
-		if err != nil {
-			panic(err)
-		}
-
-		go dnsmessage.Authoritative(AuthoritativeLogger)
-	}
-
-	if config.QueryResponseLogging {
-
-		QueryResponseConfig := logwriter.LoggerConfig{
-			FilenamePrefix: "queryresponse",
-			LogDir:         config.LogDir,
-			MaxLines:       config.MaxLines,
-			RotationTime:   time.Duration(config.RotationTimeSeconds) * time.Second,
-		}
-
-		QueryResponseLogger, err := logwriter.NewLogger(QueryResponseConfig)
-		if err != nil {
-			panic(err)
-		}
-
-		go dnsmessage.QueryResponse(QueryResponseLogger)
+		go dnsmessage.Detailed(logger)
+	case "passive":
+		log.Printf("Passive logging enabled")
+		go dnsmessage.PassiveDNS(logger)
+	case "authoritative":
+		log.Printf("Authoritative logging enabled")
+		go dnsmessage.Authoritative(logger)
+	case "query_response":
+		log.Printf("Query response logging enabled")
+		go dnsmessage.QueryResponse(logger)
+	default:
+		log.Fatalf("unknown logging type: %s", config.LogType)
 	}
 
 	// Handle incoming connections

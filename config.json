@@ -1,9 +1,6 @@
 {
-    "passive_logging": true,
-    "detailed_logging": true,
-    "authoritative_logging": false,
-    "query_response_logging": true,
-    "log_dir": "/logs",
+    "log_type": "detailed",
+    "log_dir": "./logs",
     "max_lines": 1000000,
     "rotation_time_seconds": 6000,
     "port": ":44353"

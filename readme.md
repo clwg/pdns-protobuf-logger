@@ -17,6 +17,20 @@
 
 Modify the config.json to suit your needs and run the application.
 
+{
+    "log_type": "detailed",
+    "log_dir": "./logs",
+    "max_lines": 1000000,
+    "rotation_time_seconds": 6000,
+    "port": ":44353"
+}
+
+There are 4 log types that can be set in the configuration file:
+ - detailed
+ - passive
+ - authoritative
+ - query_response
+
 ```bash
 go run cmd/pdnslogger.go -config config.json
 ```
