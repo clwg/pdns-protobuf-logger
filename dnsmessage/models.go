@@ -12,18 +12,18 @@ type DNSMessage struct {
 	FromPort                uint32      `json:"from_port"`
 	ToPort                  uint32      `json:"to_port"`
 	Type                    string      `json:"type"`
-	ServerIdentity          string      `json:"server_identity"`
+	ServerIdentity          string      `json:"-"` //`json:"server_identity"`
 	SocketFamily            string      `json:"socket_family"`
 	SocketProtocol          string      `json:"socket_protocol"`
 	From                    string      `json:"from"`
 	To                      string      `json:"to"`
-	RequestorId             string      `json:"requestor_id"`
-	DeviceName              string      `json:"device_name"`
-	NewlyObservedDomain     bool        `json:"newly_observed_domain"`
-	OriginalRequestorSubnet []byte      `json:"original_requestor_subnet"`
-	InitialRequestId        []byte      `json:"initial_request_id"`
-	DeviceId                []byte      `json:"device_id"`
-	MessageId               []byte      `json:"message_id"`
+	RequestorId             string      `json:"-"` //`json:"requestor_id"`
+	DeviceName              string      `json:"-"` //`json:"device_name"`
+	NewlyObservedDomain     bool        `json:"-"` //`json:"newly_observed_domain"`
+	OriginalRequestorSubnet []byte      `json:"-"` //`json:"original_requestor_subnet"`
+	InitialRequestId        []byte      `json:"-"` //`json:"initial_request_id"`
+	DeviceId                []byte      `json:"-"` //`json:"device_id"`
+	MessageId               []byte      `json:"-"` //`json:"message_id"`
 }
 
 type DNSQuestion struct {
@@ -33,10 +33,10 @@ type DNSQuestion struct {
 }
 
 type DNSResponse struct {
-	AppliedPolicy        string              `json:"applied_policy"`
-	AppliedPolicyTrigger string              `json:"applied_policy_trigger"`
-	AppliedPolicyHit     string              `json:"applied_policy_hit"`
-	ValidationState      string              `json:"validation_state"`
+	AppliedPolicy        string              `json:"-"` //`json:"applied_policy"`
+	AppliedPolicyTrigger string              `json:"-"` //`json:"applied_policy_trigger"`
+	AppliedPolicyHit     string              `json:"-"` //`json:"applied_policy_hit"`
+	ValidationState      string              `json:"-"` //`json:"validation_state"`
 	Rrs                  []DNSResponse_DNSRR `json:"rrs"`
 	Tags                 []string            `json:"tags"`
 	Rcode                uint32              `json:"rcode"`
